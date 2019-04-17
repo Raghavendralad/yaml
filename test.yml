@@ -1,0 +1,26 @@
+---
+- name: Get date and Uptime 
+  hosts: all
+  remote_user: ec2-user
+  become: true
+  
+  tasks:
+   - name: get system date for all machines
+     shell: date
+     register: output
+
+   - debug: var=output.stdout
+
+   - name: get system uptime for all machines
+     shell: uptime      
+     register: output1
+   
+   - debug: var=output1.stdout
+
+   - debug: var=ansible_distribution_version
+
+   - name: group some machine together
+     group_by: key=rhel_{{ansible_distribution_version}}
+     register: group_result
+ 
+   - debug: var=group_result

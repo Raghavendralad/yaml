@@ -1,0 +1,26 @@
+---
+- name: Install and Configure mariadb 
+  hosts: "{{myHosts}}"
+  remote_user: ec2-user
+  become: true
+  
+  vars_files:
+   - maria_vars.yml
+  
+  tasks:
+   - name: Install MariaDB
+     yum: name=mariadb-server state=latest 
+     
+   - name: Create mysql configuration file
+     template: src=my.cnf.j2 dest=/etc/my.cnf
+     notify: restart mariadb
+     
+   - name: start Mariadb      
+     service: name=mariadb state=started enabled=yes
+
+   - name: Create Mariadb Log File      
+     file: path={{log_path}}/mysqld.log state=touch owner=mysql group=mysql mode=0775
+
+  handlers:
+   - name: restart mariadb
+     service: name=mariadb start=restarted
